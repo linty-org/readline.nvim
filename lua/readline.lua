@@ -1,5 +1,8 @@
 local M = {}
 
+M.skip_chars = {
+}
+
 local whitespace = ' 	'
 
 local function new_cursor(s, i, dir, skip_chars)
@@ -14,7 +17,7 @@ local function new_cursor(s, i, dir, skip_chars)
   local consumed_anything = false
   while can_advance(i) do
     local c = vim.fn.nr2char(vim.fn.strgetchar(s, next_char_idx(i)))
-    if string.find(skip_chars, c) then
+    if string.find(skip_chars, c, 1, true) then
       if consumed_anything then
         break
       end
@@ -102,28 +105,67 @@ function M._run_tests()
   vim.api.nvim_echo(messages, true, {})
 end
 
+local function cursor_col()
+  -- Returns zero-based.
+  return vim.fn.charcol '.' - 1
+end
+
+local function last_cursor_col()
+  return vim.fn.strchars(vim.fn.getline '.')
+end
+
+local function forward_cursor_col()
+  return forward_word_cursor(vim.fn.getline '.', cursor_col(), vim.o.breakat)
+end
+
+local function backward_cursor_col()
+  return backward_word_cursor(vim.fn.getline '.', cursor_col(), vim.o.breakat)
+end
+
+local function move_cursor(new_cursor_col)
+  vim.fn.setcursorcharpos(vim.fn.line '.', new_cursor_col + 1)
+end
+
+local function kill_text(cursor_1, cursor_2)
+  -- Kill the text between the cursor positions. The cursor positions are zero-based and may appear in either order.
+  local cursor_start = math.min(cursor_1, cursor_2)
+  local cursor_end = math.max(cursor_1, cursor_2)
+  local line = vim.fn.line '.'
+  local text = vim.api.nvim_buf_get_text(0, line - 1, cursor_start, line - 1, cursor_end, {})
+  vim.fn.setreg('-', text, 'c')
+  vim.api.nvim_buf_set_text(0, line - 1, cursor_start, line - 1, cursor_end, {})
+end
+
 function M.forward_word()
+  move_cursor(forward_cursor_col())
 end
 
 function M.backward_word()
-end
-
-function M.beginning_of_line()
+  move_cursor(backward_cursor_col())
 end
 
 function M.end_of_line()
+  move_cursor(last_cursor_col())
+end
+
+function M.beginning_of_line()
+  move_cursor(0)
 end
 
 function M.kill_word()
+  kill_text(cursor_col(), forward_cursor_col())
 end
 
 function M.backward_kill_word()
+  kill_text(cursor_col(), backward_cursor_col())
 end
 
 function M.kill_line()
+  kill_text(cursor_col(), last_cursor_col())
 end
 
 function M.backward_kill_line()
+  kill_text(cursor_col(), 0)
 end
 
 return M
