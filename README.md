@@ -8,7 +8,7 @@ The [Readline](https://en.wikipedia.org/wiki/GNU_Readline) text-editing shortcut
 
 ## Installation
 
-Using [vim-plug](https://github.com/junegunn/vim-plug), do `Plug 'linty-org/readline.nvim`, or use your favorite Neovim plugin manager.
+Using [vim-plug](https://github.com/junegunn/vim-plug), do `Plug 'linty-org/readline.nvim`, or use your favorite Neovim plugin manager. Requires at least Neovim 0.7.
 
 ## Quick start
 
