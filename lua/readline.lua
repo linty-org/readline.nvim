@@ -120,7 +120,7 @@ local function current_line()
   end
 end
 
-local function cursor_col()
+local function current_cursor_col()
   -- Returns zero-based.
   if command_line_mode() then
     local byte_index = vim.fn.getcmdpos() - 1 -- Zero-based.
@@ -148,11 +148,11 @@ local function get_word_chars()
 end
 
 local function forward_cursor_col()
-  return forward_word_cursor(current_line(), cursor_col(), get_word_chars())
+  return forward_word_cursor(current_line(), current_cursor_col(), get_word_chars())
 end
 
 local function backward_cursor_col()
-  return backward_word_cursor(current_line(), cursor_col(), get_word_chars())
+  return backward_word_cursor(current_line(), current_cursor_col(), get_word_chars())
 end
 
 local function feed_keys(s)
@@ -166,7 +166,7 @@ local function move_non_command_line_cursor(new_cursor_col)
 end
 
 local function command_line_motion(new_cursor_col, motion)
-  local old_cursor_col = cursor_col()
+  local old_cursor_col = current_cursor_col()
   if new_cursor_col < old_cursor_col then
     local key = (motion == 'move') and '<Left>' or '<BS>'
     feed_keys(string.rep(key, old_cursor_col - new_cursor_col))
@@ -176,26 +176,29 @@ local function command_line_motion(new_cursor_col, motion)
   end
 end
 
-local function move_cursor_to(new_cursor_col)
+local function move_cursor_to(cursor_col)
   if command_line_mode() then
-    command_line_motion(new_cursor_col, 'move')
+    command_line_motion(cursor_col, 'move')
   else
-    move_non_command_line_cursor(new_cursor_col)
+    move_non_command_line_cursor(cursor_col)
   end
 end
 
-local function kill_text_to(new_cursor_col)
+local function kill_text_to(cursor_col)
   -- Kill the text to the cursor positions. The cursor positrion is zero-based. The cursor will be left in the correct place.
   if command_line_mode() then
-    command_line_motion(new_cursor_col, 'delete')
+    command_line_motion(cursor_col, 'delete')
   else
-    local cursor_start = cursor_col()
-    local cursor_left = math.min(cursor_start, new_cursor_col)
-    local cursor_right = math.max(cursor_start, new_cursor_col)
-    local line = vim.fn.line '.'
-    local text = vim.api.nvim_buf_get_text(0, line - 1, cursor_left, line - 1, cursor_right, {})
+    local cursor_start = current_cursor_col()
+    local cursor_left = math.min(cursor_start, cursor_col)
+    local cursor_right = math.max(cursor_start, cursor_col)
+    local line = current_line()
+    local line_nr = vim.fn.line '.'
+    local cursor_left_byte = vim.fn.byteidx(line, cursor_left)
+    local cursor_right_byte = vim.fn.byteidx(line, cursor_right)
+    local text = vim.api.nvim_buf_get_text(0, line_nr - 1, cursor_left_byte, line_nr - 1, cursor_right_byte, {})
     vim.fn.setreg('-', text, 'c')
-    vim.api.nvim_buf_set_text(0, line - 1, cursor_left, line - 1, cursor_right, {})
+    vim.api.nvim_buf_set_text(0, line_nr - 1, cursor_left_byte, line_nr - 1, cursor_right_byte, {})
     move_non_command_line_cursor(cursor_left)
   end
 end
