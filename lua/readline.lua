@@ -108,77 +108,128 @@ function readline._run_tests()
   vim.api.nvim_echo(messages, true, {})
 end
 
+local function command_line_mode()
+  return vim.fn.mode() == 'c'
+end
+
+local function current_line()
+  if command_line_mode() then
+    return vim.fn.getcmdline()
+  else
+    return vim.fn.getline '.'
+  end
+end
+
 local function cursor_col()
   -- Returns zero-based.
-  return vim.fn.charcol '.' - 1
+  if command_line_mode() then
+    local byte_index = vim.fn.getcmdpos() - 1 -- Zero-based.
+    local line = current_line()
+    if byte_index == vim.fn.strlen(line) then
+      return vim.fn.strchars(line)
+    end
+    return vim.fn.charidx(line, byte_index)
+  else
+    return vim.fn.charcol '.' - 1
+  end
 end
 
 local function last_cursor_col()
-  return vim.fn.strchars(vim.fn.getline '.')
+  return vim.fn.strchars(current_line())
 end
 
 local function get_word_chars()
+  if command_line_mode() then
+    return readline.word_chars['c'] -- Hmm, we can probably do better than this.
+  end
   return readline.word_chars[vim.bo.filetype]
       or vim.b.readline_word_chars
       or readline.word_chars['c']
 end
 
 local function forward_cursor_col()
-  return forward_word_cursor(vim.fn.getline '.', cursor_col(), get_word_chars())
+  return forward_word_cursor(current_line(), cursor_col(), get_word_chars())
 end
 
 local function backward_cursor_col()
-  return backward_word_cursor(vim.fn.getline '.', cursor_col(), get_word_chars())
+  return backward_word_cursor(current_line(), cursor_col(), get_word_chars())
 end
 
-local function move_cursor(new_cursor_col)
+local function feed_keys(s)
+  -- The idea is that this accepts strings like '<Left><CR>xyz' and does the right thing.
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(s, true, true, true), '', false)
+  -- Is there really no better way of doing this?
+end
+
+local function move_non_command_line_cursor(new_cursor_col)
   vim.fn.setcursorcharpos(vim.fn.line '.', new_cursor_col + 1)
 end
 
-local function kill_text(cursor_1, cursor_2)
-  -- Kill the text between the cursor positions. The cursor positions are zero-based and may appear in either order.
-  local cursor_start = math.min(cursor_1, cursor_2)
-  local cursor_end = math.max(cursor_1, cursor_2)
-  local line = vim.fn.line '.'
-  local text = vim.api.nvim_buf_get_text(0, line - 1, cursor_start, line - 1, cursor_end, {})
-  vim.fn.setreg('-', text, 'c')
-  vim.api.nvim_buf_set_text(0, line - 1, cursor_start, line - 1, cursor_end, {})
+local function command_line_motion(new_cursor_col, motion)
+  local old_cursor_col = cursor_col()
+  if new_cursor_col < old_cursor_col then
+    local key = (motion == 'move') and '<Left>' or '<BS>'
+    feed_keys(string.rep(key, old_cursor_col - new_cursor_col))
+  elseif old_cursor_col < new_cursor_col then
+    local key = (motion == 'move') and '<Right>' or '<Del>'
+    feed_keys(string.rep(key, new_cursor_col - old_cursor_col))
+  end
+end
+
+local function move_cursor_to(new_cursor_col)
+  if command_line_mode() then
+    command_line_motion(new_cursor_col, 'move')
+  else
+    move_non_command_line_cursor(new_cursor_col)
+  end
+end
+
+local function kill_text_to(new_cursor_col)
+  -- Kill the text to the cursor positions. The cursor positrion is zero-based. The cursor will be left in the correct place.
+  if command_line_mode() then
+    command_line_motion(new_cursor_col, 'delete')
+  else
+    local cursor_start = cursor_col()
+    local cursor_left = math.min(cursor_start, new_cursor_col)
+    local cursor_right = math.max(cursor_start, new_cursor_col)
+    local line = vim.fn.line '.'
+    local text = vim.api.nvim_buf_get_text(0, line - 1, cursor_left, line - 1, cursor_right, {})
+    vim.fn.setreg('-', text, 'c')
+    vim.api.nvim_buf_set_text(0, line - 1, cursor_left, line - 1, cursor_right, {})
+    move_non_command_line_cursor(cursor_left)
+  end
 end
 
 function readline.forward_word()
-  move_cursor(forward_cursor_col())
+  move_cursor_to(forward_cursor_col())
 end
 
 function readline.backward_word()
-  move_cursor(backward_cursor_col())
+  move_cursor_to(backward_cursor_col())
 end
 
 function readline.end_of_line()
-  move_cursor(last_cursor_col())
+  move_cursor_to(last_cursor_col())
 end
 
 function readline.beginning_of_line()
-  move_cursor(0)
+  move_cursor_to(0)
 end
 
 function readline.kill_word()
-  kill_text(cursor_col(), forward_cursor_col())
+  kill_text_to(forward_cursor_col())
 end
 
 function readline.backward_kill_word()
-  local new_cursor_col = backward_cursor_col()
-  kill_text(cursor_col(), new_cursor_col)
-  move_cursor(new_cursor_col)
+  kill_text_to(backward_cursor_col())
 end
 
 function readline.kill_line()
-  kill_text(cursor_col(), last_cursor_col())
+  kill_text_to(last_cursor_col())
 end
 
 function readline.backward_kill_line()
-  local new_cursor_col = 0
-  kill_text(cursor_col(), new_cursor_col)
-  move_cursor(new_cursor_col)
+  kill_text_to(0)
 end
 
 return readline
