@@ -34,3 +34,8 @@ vim.keymap.set('i', '<A-f>', readline.forward_word)
 vim.keymap.set('i', '<A-b>', readline.backward_word)
 ```
 This is mainly useful in Insert and Command-line mode – in Normal mode the usual Vim Normal mode commands are available – but you can create Normal mode mappings if you want.
+
+## Similar plugins
+
+- https://github.com/tpope/vim-rsi
+- https://github.com/ryvnf/readline.vim
