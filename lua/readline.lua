@@ -166,7 +166,9 @@ function readline.kill_word()
 end
 
 function readline.backward_kill_word()
-  kill_text(cursor_col(), backward_cursor_col())
+  local new_cursor_col = backward_cursor_col()
+  kill_text(cursor_col(), new_cursor_col)
+  move_cursor(new_cursor_col)
 end
 
 function readline.kill_line()
@@ -174,7 +176,9 @@ function readline.kill_line()
 end
 
 function readline.backward_kill_line()
-  kill_text(cursor_col(), 0)
+  local new_cursor_col = 0
+  kill_text(cursor_col(), new_cursor_col)
+  move_cursor(new_cursor_col)
 end
 
 return readline
