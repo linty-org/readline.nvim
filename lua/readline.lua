@@ -13,7 +13,7 @@ local function new_cursor(s, i, dir, skip_chars)
   end
   local consumed_anything = false
   while can_advance(i) do
-    local c = vim.fn.strgetchar(s, next_char_idx(i))
+    local c = vim.fn.nr2char(vim.fn.strgetchar(s, next_char_idx(i)))
     if string.find(skip_chars, c) then
       if consumed_anything then
         break
