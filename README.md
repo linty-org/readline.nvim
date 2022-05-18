@@ -4,7 +4,7 @@
 
 ## Summary
 
-The [Readline](https://en.wikipedia.org/wiki/GNU_Readline) text-editing shortcuts let you do things like move the cursor or delete text by a word or a line at a time. The Readline shortcuts are implemented all over the place, for example in the major shells (Bash, Zsh, fish), in programming language REPLs, [even in macOS](https://support.apple.com/en-us/HT201236). `readline.nvim` adds Readline text-editing commands to Neovim (in Insert mode – Command-line mode support coming soon!).
+The [Readline](https://en.wikipedia.org/wiki/GNU_Readline) text-editing shortcuts let you do things like move the cursor or delete text by a word or a line at a time. The Readline shortcuts are enabled by default all over the place, for example in the major shells (Bash, Zsh, fish), in programming language REPLs, [even in macOS](https://support.apple.com/en-us/HT201236). `readline.nvim` adds Readline text-editing commands to Neovim (in Insert mode – Command-line mode support coming soon!).
 
 ## Installation
 
