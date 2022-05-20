@@ -33,7 +33,7 @@ Some of the Readline default shortcuts conflict with Vim defaults: for example, 
 
 Some Readline commands, for example `<C-f>` to move the cursor forward one character, don't need to be implemented using Lua functions. They can be bound like so: `vim.keymap.set('!', '<C-f>', '<Right>')`.
 
-## Supported Readline functions
+## Supported Readline commands
 
 | Readline command             | Shortcut | readline.nvim function / Vim command |
 | ---                          | ---      | ---                                  |
@@ -60,6 +60,8 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 | `upcase-word`                | `M-u`    | [Ask if desired][issues]             |
 | `downcase-word`              | `M-l`    | [Ask if desired][issues]             |
 | `capitalize-word`            | `M-c`    | [Ask if desired][issues]             |
+
+[issues]: https://github.com/linty-org/readline.nvim/issues
 
 References:
 - GNU docs
