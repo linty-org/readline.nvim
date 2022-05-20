@@ -78,11 +78,12 @@ Readline motions that operate a-word-at-a-time (`forward-word`, etc.) advance th
 What should count as a "word character" is context-dependent: for example, in C, the word characters are usually taken to be the alphanumeric characters (`abc…zABC…Z0123…9`) and the underscore (`_`) – those characters that can be used in C variable/symbol names.
 
 This plugin allows you to configure what counts as a word character in two ways:
-- You can set `readline.word_chars.YOUR_FILETYPE = YOUR_STRING`.
-  - `readline.alphanum` is provided for convenience, and consists of the characters `abc…zABC…Z0123…9`.
-  - For example, you can do `readline.word_chars.bash = readline.alphanum .. '_-'` to cause alphanumerics plus hyphens and underscores to be treated as word characters when `filetype=bash`.
 - You can set the buffer variable `readline_word_chars` to a string consisting of the word characters for the current buffer.
+  - `readline.alphanum` is provided for convenience, and consists of the characters `abc…zABC…Z0123…9`.
   - For example, `vim.b.readline_word_chars = readline.alphanum .. '_-'`.
+- You can set `readline.word_chars.YOUR_FILETYPE = YOUR_STRING`.
+  - For example, you can do `readline.word_chars.bash = readline.alphanum .. '_-'` to cause alphanumerics plus hyphens and underscores to be treated as word characters when `filetype=bash`.
+  - The value of `vim.b.readline_word_chars` takes precedence in a buffer (if it's set).
 - If neither of these is set, we fall back to `readline.word_chars.c = 'abc…zABC…Z0123…9_'`.
 
 ## Sample configs
