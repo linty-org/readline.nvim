@@ -88,7 +88,7 @@ vim.keymap.set('!', '<C-k>', readline.kill_line)
 vim.keymap.set('!', '<C-u>', readline.backward_kill_line)
 ```
 
-Personally I have OS-level custom keyboard mappings for the arrow keys, `<BS>`, and `<Delete>`, so I don't need the `CTRL`-key Readline versions of those commands.
+Personally I have OS-level custom keyboard mappings for the arrow keys, `<BS>`, and `<Delete>` to make them easier to type, so I don't need the `CTRL`-key Readline versions of those commands.
 
 ### Maximal
 
