@@ -63,7 +63,8 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 
 [issues]: https://github.com/linty-org/readline.nvim/issues
 
-References:
+### References
+
 - GNU docs
   - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html
   - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Text.html
