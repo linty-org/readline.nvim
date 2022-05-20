@@ -4,6 +4,7 @@ local alphanum = 'abcdefghijklmnopqrstuvwxyz' ..
                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
                  '0123456789'
 
+readline.alphanum = alphanum
 readline.word_chars = {
   c = alphanum .. '_',
 }
