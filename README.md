@@ -80,11 +80,11 @@ What should count as a "word character" is context-dependent: for example, in C,
 This plugin allows you to configure what counts as a word character in two ways:
 - You can set the buffer variable `readline_word_chars` to a string consisting of the word characters for the current buffer.
   - `readline.alphanum` is provided for convenience, and consists of the characters `abc…zABC…Z0123…9`.
-  - For example, `vim.b.readline_word_chars = readline.alphanum .. '_-'`.
+  - For example, `vim.b.readline_word_chars = readline.alphanum .. '_-'` will cause alphanumerics, hyphens, and underscores to be treated as word characters in the current buffer.
 - You can set `readline.word_chars.YOUR_FILETYPE = YOUR_STRING`.
-  - For example, you can do `readline.word_chars.bash = readline.alphanum .. '_-'` to cause alphanumerics plus hyphens and underscores to be treated as word characters when `filetype=bash`.
+  - For example, `readline.word_chars.bash = readline.alphanum .. '_-'` will cause alphanumerics, hyphens, and underscores to be treated as word characters when `filetype=bash`.
   - The value of `vim.b.readline_word_chars` takes precedence in a buffer (if it's set).
-- If neither of these is set, we fall back to `readline.word_chars.c = 'abc…zABC…Z0123…9_'`.
+If neither of the above is set, we fall back to `readline.word_chars.c = 'abc…zABC…Z0123…9_'`.
 
 ## Sample configs
 
