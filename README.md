@@ -35,31 +35,31 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 
 ## Supported Readline commands
 
-| Readline command             | Shortcut | readline.nvim function / Vim command |
-| ---                          | ---      | ---                                  |
-| `kill-line`                  | `C-k`    | `kill_line`                          |
-| `backward-kill-line`         | `C-u`    | `backward_kill_line`                 |
-| `kill-word`                  | `M-d`    | `kill_word`                          |
-| `backward-kill-word`         | `C-w`    | `backward_kill_word`                 |
-| `delete-char`                | `C-d`    | `<Delete>`                           |
-| `backward-delete-char`       | `C-h`    | `<BS>`                               |
-| `beginning-of-line`          | `C-a`    | `beginning_of_line`                  |
-| `end-of-line`                | `C-e`    | `end_of_line`                        |
-| `forward-word`               | `M-f`    | `forward_word`                       |
-| `backward-word`              | `M-b`    | `backward_word`                      |
-| `forward-char`               | `C-f`    | `<Right>`                            |
-| `backward-char`              | `C-b`    | `<Left>`                             |
-| `next-line`                  | `C-n`    | `<Down>`                             |
-| `previous-line`              | `C-p`    | `<Up>`                               |
-| `transpose-chars`            | `C-t`    | [Ask if desired][issues]             |
-| `transpose-words`            | `M-t`    | [Ask if desired][issues]             |
-| `quoted-insert`              | `C-v`    | `<C-v>`                              |
-| `yank` (called `put` in Vim) | `C-y`    | [Ask if desired][issues]             |
-| `yank-pop`                   | `M-y`    | [Ask if desired][issues]             |
-| `undo`                       | `C-_`    | [Ask if desired][issues]             |
-| `upcase-word`                | `M-u`    | [Ask if desired][issues]             |
-| `downcase-word`              | `M-l`    | [Ask if desired][issues]             |
-| `capitalize-word`            | `M-c`    | [Ask if desired][issues]             |
+| Readline command             | RL shortcut | readline.nvim function / Vim command |
+| ---                          | ---         | ---                                  |
+| `kill-line`                  | `C-k`       | `kill_line`                          |
+| `backward-kill-line`         | `C-u`       | `backward_kill_line`                 |
+| `kill-word`                  | `M-d`       | `kill_word`                          |
+| `backward-kill-word`         | `C-w`       | `backward_kill_word`                 |
+| `delete-char`                | `C-d`       | `<Delete>`                           |
+| `backward-delete-char`       | `C-h`       | `<BS>`                               |
+| `beginning-of-line`          | `C-a`       | `beginning_of_line`                  |
+| `end-of-line`                | `C-e`       | `end_of_line`                        |
+| `forward-word`               | `M-f`       | `forward_word`                       |
+| `backward-word`              | `M-b`       | `backward_word`                      |
+| `forward-char`               | `C-f`       | `<Right>`                            |
+| `backward-char`              | `C-b`       | `<Left>`                             |
+| `next-line`                  | `C-n`       | `<Down>`                             |
+| `previous-line`              | `C-p`       | `<Up>`                               |
+| `transpose-chars`            | `C-t`       | [Ask if desired][issues]             |
+| `transpose-words`            | `M-t`       | [Ask if desired][issues]             |
+| `quoted-insert`              | `C-v`       | `<C-v>`                              |
+| `yank` (called `put` in Vim) | `C-y`       | [Ask if desired][issues]             |
+| `yank-pop`                   | `M-y`       | [Ask if desired][issues]             |
+| `undo`                       | `C-_`       | [Ask if desired][issues]             |
+| `upcase-word`                | `M-u`       | [Ask if desired][issues]             |
+| `downcase-word`              | `M-l`       | [Ask if desired][issues]             |
+| `capitalize-word`            | `M-c`       | [Ask if desired][issues]             |
 
 [issues]: https://github.com/linty-org/readline.nvim/issues
 
