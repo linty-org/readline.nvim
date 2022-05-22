@@ -27,11 +27,11 @@ vim.keymap.set('!', '<C-u>', readline.backward_kill_line)
 
 ## Design
 
-This plugin does not create any keyboard mappings. Instead, it provides Lua functions that implement the Readline motion and deletion commands in Insert and Command-line mode. Once you have these functions, it's easy to create mappings in your Neovim config implementing whatever subset of the Readline shortcuts you actually want.
+This plugin does not create any keyboard mappings. Instead, it provides Lua functions that implement the Readline motion and deletion commands in Insert and Command-line mode. Once you have these functions, it's easy to create mappings in your Neovim config implementing whatever subset of the Readline shortcuts you actually want. There are some [sample configs](#sample-configs) below that you can copy-paste from, including an [opinionated](#opinionated) one if you just want to copy-paste something and be done.
 
-Some of the Readline default shortcuts conflict with Vim defaults: for example, `<C-t>` in Readline swaps the last two characters, and `<C-t>` in Vim's Insert mode indents the current line. So, while usually I think plugin authors should just set good defaults, in this case I think there should be some user choice about which mappings to use. There are some [sample configs](#sample-configs) below that you can copy-paste from, including an [opinionated](#opinionated) one if you just want to copy-paste something and be done.
+Some of the Readline default shortcuts conflict with Vim defaults: for example, `<C-t>` in Readline swaps the last two characters, and `<C-t>` in Vim's Insert mode indents the current line. So, while usually I think plugin authors should just set good defaults, in this case I think there should be some user choice about which mappings to use.
 
-Some Readline commands, for example `<C-f>` to move the cursor forward one character, don't need to be implemented using Lua functions. They can be bound like so: `vim.keymap.set('!', '<C-f>', '<Right>')`.
+Some Readline commands, for example `<C-f>` to move the cursor forward one character, have identical or nearly-identical Vim equivalents, and don't need to be implemented using Lua functions. They can be bound like so: `vim.keymap.set('!', '<C-f>', '<Right>')`.
 
 ## Supported Readline commands
 
