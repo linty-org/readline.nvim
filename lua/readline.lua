@@ -187,18 +187,24 @@ end
 
 local function kill_text_to(cursor_col)
   -- Kill the text to the cursor positions. The cursor positrion is zero-based. The cursor will be left in the correct place.
+
+  local cursor_start = current_cursor_col()
+  if cursor_col == cursor_start then
+    return
+  end
+
+  local line = current_line()
+  local cursor_left = math.min(cursor_start, cursor_col)
+  local cursor_right = math.max(cursor_start, cursor_col)
+  local killed_text = current_line():sub(cursor_left+1, cursor_right)
+  vim.fn.setreg('-', killed_text, 'c')
+
   if command_line_mode() then
     command_line_motion(cursor_col, 'delete')
   else
-    local cursor_start = current_cursor_col()
-    local cursor_left = math.min(cursor_start, cursor_col)
-    local cursor_right = math.max(cursor_start, cursor_col)
-    local line = current_line()
     local line_nr = vim.fn.line '.'
     local cursor_left_byte = vim.fn.byteidx(line, cursor_left)
     local cursor_right_byte = vim.fn.byteidx(line, cursor_right)
-    local text = vim.api.nvim_buf_get_text(0, line_nr - 1, cursor_left_byte, line_nr - 1, cursor_right_byte, {})
-    vim.fn.setreg('-', text, 'c')
     vim.api.nvim_buf_set_text(0, line_nr - 1, cursor_left_byte, line_nr - 1, cursor_right_byte, {})
     move_non_command_line_cursor(cursor_left)
   end
