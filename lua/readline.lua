@@ -185,6 +185,13 @@ local function move_cursor_to(cursor_col)
   end
 end
 
+local function breakundo()
+  -- Thanks, Bram.
+  -- XXX: https://github.com/vim/vim/pull/10511
+  -- XXX: https://github.com/neovim/neovim/issues/18828
+  vim.o.undolevels = vim.o.undolevels
+end
+
 local function kill_text_to(cursor_col)
   -- Kill the text to the cursor positions. The cursor positrion is zero-based. The cursor will be left in the correct place.
 
@@ -200,8 +207,12 @@ local function kill_text_to(cursor_col)
   vim.fn.setreg('-', killed_text, 'c')
 
   if command_line_mode() then
+    -- FIXME: Is it possible to support undo for Command-line mode kills?
     command_line_motion(cursor_col, 'delete')
   else
+    breakundo()
+
+    -- Kill the text.
     local line_nr = vim.fn.line '.'
     local cursor_left_byte = vim.fn.byteidx(line, cursor_left)
     local cursor_right_byte = vim.fn.byteidx(line, cursor_right)
