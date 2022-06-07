@@ -73,9 +73,9 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 
 ## Configuring word characters
 
-Readline motions that operate a-word-at-a-time (`forward-word`, etc.) advance the cursor until arriving at a "word character", then advance until arriving at the first non-word character. Deletion-by-word works similarly.
+Readline motions that operate a-word-at-a-time (`forward-word`, etc.) advance the cursor until arriving at a "word character", then advance until arriving at the first non-word character. Deletion-by-word works similarly. The default set of word characters in Readline consists of [letters and digits](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html).
 
-What should count as a "word character" is context-dependent: for example, in C, the word characters are usually taken to be the alphanumeric characters (`abc…zABC…Z0123…9`) and the underscore (`_`) – those characters that can be used in C variable/symbol names.
+What should count as a "word character" can be context-dependent: for example, in C, one may wish to take the word characters to be the alphanumeric characters (`abc…zABC…Z0123…9`) and the underscore (`_`) – those characters that can be used in C variable/symbol names.
 
 This plugin allows you to configure what counts as a word character in two ways:
 - You can set the buffer variable `readline_word_chars` to a string consisting of the word characters for the current buffer.
@@ -85,7 +85,7 @@ This plugin allows you to configure what counts as a word character in two ways:
   - For example, `readline.word_chars.bash = readline.alphanum .. '_-'` will cause alphanumerics, hyphens, and underscores to be treated as word characters when `filetype=bash`.
   - The value of `vim.b.readline_word_chars` takes precedence in a buffer (if it's set).
 
-If neither of the above is set, we fall back to `readline.word_chars.c = 'abc…zABC…Z0123…9_'`.
+If neither of the above is set, we fall back to `readline.default_word_chars`, which you can set to whatever you like, but which by default is equal to `'abc…zABC…Z0123…9'`.
 
 ## Sample configs
 

@@ -5,9 +5,8 @@ local alphanum = 'abcdefghijklmnopqrstuvwxyz' ..
                  '0123456789'
 
 readline.alphanum = alphanum
-readline.word_chars = {
-  c = alphanum .. '_',
-}
+readline.default_word_chars = alphanum
+readline.word_chars = {}
 
 local function new_cursor(s, i, dir, word_chars)
   local length = vim.fn.strchars(s)
@@ -141,11 +140,12 @@ end
 
 local function get_word_chars()
   if command_line_mode() then
-    return readline.word_chars['c'] -- Hmm, we can probably do better than this.
+    return readline.default_word_chars -- Hmm, we can probably do better than this.
   end
-  return readline.word_chars[vim.bo.filetype]
-      or vim.b.readline_word_chars
-      or readline.word_chars['c']
+
+  return vim.b.readline_word_chars
+      or readline.word_chars[vim.bo.filetype]
+      or readline.default_word_chars
 end
 
 local function forward_cursor_col()
