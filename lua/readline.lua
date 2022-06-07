@@ -4,9 +4,24 @@ local alphanum = 'abcdefghijklmnopqrstuvwxyz' ..
                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
                  '0123456789'
 
+local NON_WHITESPACE_CHARS = {} -- Just used for identity checking.
+
 readline.alphanum = alphanum
 readline.default_word_chars = alphanum
 readline.word_chars = {}
+
+local function is_whitespace(c)
+  return c == ' ' or
+         c == '	'
+end
+
+local function is_word_char(c, word_chars)
+  if word_chars == NON_WHITESPACE_CHARS then
+    return not is_whitespace(c)
+  else
+    return string.find(word_chars, c, 1, true)
+  end
+end
 
 local function new_cursor(s, i, dir, word_chars)
   local length = vim.fn.strchars(s)
@@ -20,12 +35,10 @@ local function new_cursor(s, i, dir, word_chars)
   local consumed_anything = false
   while can_advance(i) do
     local c = vim.fn.nr2char(vim.fn.strgetchar(s, next_char_idx(i)))
-    if not string.find(word_chars, c, 1, true) then
-      if consumed_anything then
-        break
-      end
-    else
+    if is_word_char(c, word_chars) then
       consumed_anything = true
+    elseif consumed_anything then
+      break
     end
     i = i + dir
   end
@@ -243,6 +256,10 @@ end
 
 function readline.backward_kill_word()
   kill_text_to(backward_cursor_col())
+end
+
+function readline.unix_word_rubout()
+  kill_text_to(backward_word_cursor(current_line(), current_cursor_col(), NON_WHITESPACE_CHARS))
 end
 
 function readline.kill_line()
