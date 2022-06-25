@@ -262,7 +262,7 @@ function readline.beginning_of_line()
   move_cursor_to(0)
 end
 
-function readline.beginning_of_line_text()
+function readline.back_to_indentation()
   move_cursor_to(first_non_whitespace_cursor_col())
 end
 
