@@ -46,6 +46,7 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 | `delete-char`                | `C-d`       | `<Delete>`                           |
 | `backward-delete-char`       | `C-h`       | `<BS>`                               |
 | `beginning-of-line`          | `C-a`       | `beginning_of_line`                  |
+| `back-to-indentation`        | `M-m`       | `back_to_indentation`                |
 | `end-of-line`                | `C-e`       | `end_of_line`                        |
 | `forward-word`               | `M-f`       | `forward_word`                       |
 | `backward-word`              | `M-b`       | `backward_word`                      |
@@ -65,13 +66,16 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 
 [issues]: https://github.com/linty-org/readline.nvim/issues
 
-### References
+References: GNU docs for [moving](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html), [text](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Text.html), and [killing](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Killing.html); and [Readline on Wikipedia](https://en.wikipedia.org/wiki/GNU_Readline).
 
-- GNU docs
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Text.html
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Killing.html
-- [Wikipedia](https://en.wikipedia.org/wiki/GNU_Readline)
+## Supported Emacs commands
+
+| Emacs command                        | Emacs shortcut | readline.nvim function |
+| ---                                  | ---            | ---                    |
+| [`back-to-indentation`][emacsindent] | `M-m`          | `back_to_indentation`  |
+
+[emacsindent]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Indentation-Commands.html
+
 
 ## Configuring word characters
 

@@ -147,6 +147,18 @@ local function current_cursor_col()
   end
 end
 
+local function first_non_whitespace_cursor_col()
+  local line = current_line()
+  local index = 0
+  local function char()
+    return vim.fn.nr2char(vim.fn.strgetchar(line, index))
+  end
+  while index < vim.fn.strchars(line) and is_whitespace(char()) do
+    index = index + 1
+  end
+  return index
+end
+
 local function last_cursor_col()
   return vim.fn.strchars(current_line())
 end
@@ -248,6 +260,10 @@ end
 
 function readline.beginning_of_line()
   move_cursor_to(0)
+end
+
+function readline.back_to_indentation()
+  move_cursor_to(first_non_whitespace_cursor_col())
 end
 
 function readline.kill_word()
