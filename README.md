@@ -66,21 +66,16 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 
 [issues]: https://github.com/linty-org/readline.nvim/issues
 
-## Additional commands
+References: GNU docs for [moving](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html), [text](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Text.html), and [killing](https://www.gnu.org/software/bash/manual/html_node/Commands-For-Killing.html); and [Readline on Wikipedia](https://en.wikipedia.org/wiki/GNU_Readline).
 
-| Emacs command                        | Emacs shortcut | readline.nvim function / Vim command |
-| ---                                  | ---            | ---                                  |
-| [`back-to-indentation`][emacsindent] | `M-m`          | `back_to_indentation`                |
+## Supported Emacs commands
+
+| Emacs command                        | Emacs shortcut | readline.nvim function |
+| ---                                  | ---            | ---                    |
+| [`back-to-indentation`][emacsindent] | `M-m`          | `back_to_indentation`  |
 
 [emacsindent]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Indentation-Commands.html
 
-### References
-
-- GNU docs
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Moving.html
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Text.html
-  - https://www.gnu.org/software/bash/manual/html_node/Commands-For-Killing.html
-- [Wikipedia](https://en.wikipedia.org/wiki/GNU_Readline)
 
 ## Configuring word characters
 
