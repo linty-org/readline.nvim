@@ -46,6 +46,7 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 | `delete-char`                | `C-d`       | `<Delete>`                           |
 | `backward-delete-char`       | `C-h`       | `<BS>`                               |
 | `beginning-of-line`          | `C-a`       | `beginning_of_line`                  |
+| `back-to-indentation`        | `M-m`       | `back_to_indentation`                |
 | `end-of-line`                | `C-e`       | `end_of_line`                        |
 | `forward-word`               | `M-f`       | `forward_word`                       |
 | `backward-word`              | `M-b`       | `backward_word`                      |
@@ -64,6 +65,14 @@ Some Readline commands, for example `<C-f>` to move the cursor forward one chara
 | `capitalize-word`            | `M-c`       | [Ask if desired][issues]             |
 
 [issues]: https://github.com/linty-org/readline.nvim/issues
+
+## Additional commands
+
+| Emacs command                        | Emacs shortcut | readline.nvim function / Vim command |
+| ---                                  | ---            | ---                                  |
+| [`back-to-indentation`][emacsindent] | `M-m`          | `back_to_indentation`                |
+
+[emacsindent]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Indentation-Commands.html
 
 ### References
 
