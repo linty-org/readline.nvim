@@ -61,6 +61,18 @@ local function first_non_whitespace_cursor_col()
   return index
 end
 
+local function last_whitespace_cursor_col()
+  local line = current_line()
+  local index = vim.fn.strchars(line)
+  local function prev_char()
+    return vim.fn.nr2char(vim.fn.strgetchar(line, index - 1))
+  end
+  while index - 1 >= 0 and is_whitespace(prev_char()) do
+    index = index - 1
+  end
+  return index
+end
+
 local function last_cursor_col()
   return vim.fn.strchars(current_line())
 end
