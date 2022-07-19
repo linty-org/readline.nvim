@@ -23,6 +23,58 @@ local function is_word_char(c, word_chars)
   end
 end
 
+local function command_line_mode()
+  return vim.fn.mode() == 'c'
+end
+
+local function current_line()
+  if command_line_mode() then
+    return vim.fn.getcmdline()
+  else
+    return vim.fn.getline '.'
+  end
+end
+
+local function current_cursor_col()
+  -- Returns zero-based.
+  if command_line_mode() then
+    local byte_index = vim.fn.getcmdpos() - 1 -- Zero-based.
+    local line = current_line()
+    if byte_index == vim.fn.strlen(line) then
+      return vim.fn.strchars(line)
+    end
+    return vim.fn.charidx(line, byte_index)
+  else
+    return vim.fn.charcol '.' - 1
+  end
+end
+
+local function first_non_whitespace_cursor_col()
+  local line = current_line()
+  local index = 0
+  local function char()
+    return vim.fn.nr2char(vim.fn.strgetchar(line, index))
+  end
+  while index < vim.fn.strchars(line) and is_whitespace(char()) do
+    index = index + 1
+  end
+  return index
+end
+
+local function last_cursor_col()
+  return vim.fn.strchars(current_line())
+end
+
+local function get_word_chars()
+  if command_line_mode() then
+    return readline.default_word_chars -- Hmm, we can probably do better than this.
+  end
+
+  return vim.b.readline_word_chars
+      or readline.word_chars[vim.bo.filetype]
+      or readline.default_word_chars
+end
+
 local function new_cursor(s, i, dir, word_chars)
   local length = vim.fn.strchars(s)
   local next_char_idx = function(j)
@@ -119,58 +171,6 @@ function readline._run_tests()
   end
 
   vim.api.nvim_echo(messages, true, {})
-end
-
-local function command_line_mode()
-  return vim.fn.mode() == 'c'
-end
-
-local function current_line()
-  if command_line_mode() then
-    return vim.fn.getcmdline()
-  else
-    return vim.fn.getline '.'
-  end
-end
-
-local function current_cursor_col()
-  -- Returns zero-based.
-  if command_line_mode() then
-    local byte_index = vim.fn.getcmdpos() - 1 -- Zero-based.
-    local line = current_line()
-    if byte_index == vim.fn.strlen(line) then
-      return vim.fn.strchars(line)
-    end
-    return vim.fn.charidx(line, byte_index)
-  else
-    return vim.fn.charcol '.' - 1
-  end
-end
-
-local function first_non_whitespace_cursor_col()
-  local line = current_line()
-  local index = 0
-  local function char()
-    return vim.fn.nr2char(vim.fn.strgetchar(line, index))
-  end
-  while index < vim.fn.strchars(line) and is_whitespace(char()) do
-    index = index + 1
-  end
-  return index
-end
-
-local function last_cursor_col()
-  return vim.fn.strchars(current_line())
-end
-
-local function get_word_chars()
-  if command_line_mode() then
-    return readline.default_word_chars -- Hmm, we can probably do better than this.
-  end
-
-  return vim.b.readline_word_chars
-      or readline.word_chars[vim.bo.filetype]
-      or readline.default_word_chars
 end
 
 local function forward_cursor_col()
