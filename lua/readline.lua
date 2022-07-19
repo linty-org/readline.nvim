@@ -88,6 +88,13 @@ local function get_word_chars()
 end
 
 local function new_cursor(s, i, dir, word_chars)
+  local early_exit
+  if dir < 0 then
+    early_exit = first_non_whitespace_cursor_col()
+  else
+    early_exit = last_whitespace_cursor_col()
+  end
+
   local length = vim.fn.strchars(s)
   local next_char_idx = function(j)
     return (dir == -1) and (j - 1) or j
@@ -105,6 +112,10 @@ local function new_cursor(s, i, dir, word_chars)
       break
     end
     i = i + dir
+
+    if i == early_exit then
+      return i
+    end
   end
   return i
 end
