@@ -76,6 +76,25 @@ References: GNU docs for [moving](https://www.gnu.org/software/bash/manual/html_
 
 [emacsindent]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Indentation-Commands.html
 
+## Do-what-I-mean commands
+
+The following functions can be bound like `vim.keymap.set('!', '<C-a>', require 'readline'.dwim_beginning_of_comment_or_code_or_line)`. Inspired by [mwim.el](https://github.com/alezost/mwim.el).
+
+- `dwim_beginning_of_comment_or_code_or_line`
+  - Cycle the cursor through the following locations:
+    - (Used only if the current line is a single-line comment with no other code, for example a line that begins with `//` in C or JavaScript, with `#` in Python, or with `--` in Lua.) The first character after the comment leader.
+    - The first non-whitespace character on the line.
+    - Column 0.
+  - For example, calling this function repeatedly would move the cursor (`|`) like this:
+    ```
+        # Hello, wo|rld!
+        # |Hello, world!
+        |# Hello, world!
+    |   # Hello, world!
+        # |Hello, world!
+    ```
+- `dwim_backward_kill_comment_or_code_or_line`
+  - Similar to `dwim_beginning_of_comment_or_code_or_line`, but kills instead of moving the cursor, and does not cycle. If the cursor is to the right of the comment leader on an EOL-comment line, kills the comment text left of the cursor, then the comment leader, then the whitespace left of the cursor, then rolls to the previous line.
 
 ## Configuring word characters
 
