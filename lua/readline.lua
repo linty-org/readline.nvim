@@ -225,7 +225,7 @@ local function backward_line_stops(s, stop_patterns)
     end
   end
 
-  --    Now, byte_index points past the hit, if there is one.
+  -- Now, byte_index points past the hit, if there is one.
 
   if hit then
     local num_chars = vim.fn.strchars(s)
