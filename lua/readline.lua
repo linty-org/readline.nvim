@@ -429,6 +429,25 @@ local function kill_to(end_line_no, end_cursor_col)
   end
 end
 
+local function dwim_beginning_of_comment_or_code_or_line_pos(roll_to_previous_line)
+  local stops = backward_line_stops(curr_line(), get_stop_patterns())
+  local cursor_col = curr_cursor_col()
+  for i, stop in ipairs(stops) do
+    if cursor_col <= stop then
+      if i == 1 then
+        if roll_to_previous_line then
+          return end_of_previous_line()
+        else
+          return curr_line_no(), stops[#stops]
+        end
+      else
+        return curr_line_no(), stops[i - 1]
+      end
+    end
+  end
+  return curr_line_no(), stops[#stops]
+end
+
 function readline.forward_word()
   move_cursor_to(forward_word_location(get_word_chars()))
 end
@@ -443,21 +462,6 @@ end
 
 function readline.beginning_of_line()
   move_cursor_to(curr_line_no(), 0)
-end
-
-local function dwim_beginning_of_comment_or_code_or_line_pos()
-  local stops = backward_line_stops(curr_line(), get_stop_patterns())
-  local cursor_col = curr_cursor_col()
-  for i, stop in ipairs(stops) do
-    if cursor_col <= stop then
-      if i == 1 then
-        return curr_line_no(), stops[#stops]
-      else
-        return curr_line_no(), stops[i - 1]
-      end
-    end
-  end
-  return curr_line_no(), stops[#stops]
 end
 
 function readline.dwim_beginning_of_comment_or_code_or_line()
@@ -486,6 +490,10 @@ end
 
 function readline.backward_kill_line()
   kill_to(curr_line_no(), 0)
+end
+
+function readline.dwim_backward_kill_comment_or_code_or_line()
+  kill_to(dwim_beginning_of_comment_or_code_or_line_pos(true))
 end
 
 return readline

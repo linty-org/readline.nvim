@@ -93,6 +93,8 @@ The following functions can be bound like `vim.keymap.set('!', '<C-a>', require 
     |   # Hello, world!
         # |Hello, world!
     ```
+- `dwim_backward_kill_comment_or_code_or_line`
+  - Similar to `dwim_beginning_of_comment_or_code_or_line`, but does not cycle. If the cursor is to the right of the comment leader on an EOL-comment line, kills the comment text left of the cursor, then the comment leader, then the whitespace left of the cursor, then rolls to the previous line.
 
 ## Configuring word characters
 
