@@ -123,7 +123,9 @@ end
 
 local STOP_PATTERNS = {
   c = {'//'},
+  javascript = {'//'},
   lua = {'--'},
+  python = {'#'},
 }
 
 local function get_stop_patterns()
