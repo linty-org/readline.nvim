@@ -44,11 +44,15 @@ local function curr_line_no()
   end
 end
 
+local function get_line(line_no)
+  return vim.fn.getline(line_no)
+end
+
 local function curr_line()
   if command_line_mode() then
     return vim.fn.getcmdline()
   else
-    return vim.fn.getline(curr_line_no())
+    return get_line(curr_line_no())
   end
 end
 
@@ -78,8 +82,7 @@ local function last_cursor_col_on_curr_line()
   return vim.fn.strchars(curr_line())
 end
 
-local function cursor_col_at_end_of_leading_whitespace(line_no)
-  local line = vim.fn.getline(line_no)
+local function cursor_col_at_end_of_leading_whitespace(line)
   local index = 0
   local function char()
     return vim.fn.nr2char(vim.fn.strgetchar(line, index))
@@ -90,8 +93,7 @@ local function cursor_col_at_end_of_leading_whitespace(line_no)
   return index
 end
 
-local function cursor_col_at_start_of_trailing_whitespace(line_no)
-  local line = vim.fn.getline(line_no)
+local function cursor_col_at_start_of_trailing_whitespace(line)
   local index = vim.fn.strchars(line)
   local function prev_char()
     return vim.fn.nr2char(vim.fn.strgetchar(line, index - 1))
@@ -115,9 +117,9 @@ end
 local function new_cursor(s, i, dir, word_chars)
   local early_exit
   if dir < 0 then
-    early_exit = cursor_col_at_end_of_leading_whitespace(curr_line_no())
+    early_exit = cursor_col_at_end_of_leading_whitespace(s)
   else
-    early_exit = cursor_col_at_start_of_trailing_whitespace(curr_line_no())
+    early_exit = cursor_col_at_start_of_trailing_whitespace(s)
   end
 
   local length = vim.fn.strchars(s)
@@ -227,7 +229,7 @@ local function forward_word_location(word_chars)
       return curr_line_no(), curr_cursor_col()
     else
       local new_line_no = curr_line_no() + 1
-      local new_cursor_col = cursor_col_at_end_of_leading_whitespace(new_line_no)
+      local new_cursor_col = cursor_col_at_end_of_leading_whitespace(get_line(new_line_no))
       return new_line_no, new_cursor_col
     end
   else
@@ -241,7 +243,7 @@ local function backward_word_location(word_chars)
       return curr_line_no(), curr_cursor_col()
     else
       local new_line_no = curr_line_no() - 1
-      local new_cursor_col = cursor_col_at_start_of_trailing_whitespace(new_line_no)
+      local new_cursor_col = cursor_col_at_start_of_trailing_whitespace(get_line(new_line_no))
       return new_line_no, new_cursor_col
     end
   else
@@ -317,8 +319,8 @@ local function kill_to(end_line_no, end_cursor_col)
     breakundo()
 
     -- Kill the text.
-    local start_byte_idx = vim.fn.byteidx(vim.fn.getline(start_line_no), start_cursor_col)
-    local end_byte_idx = vim.fn.byteidx(vim.fn.getline(end_line_no), end_cursor_col)
+    local start_byte_idx = vim.fn.byteidx(get_line(start_line_no), start_cursor_col)
+    local end_byte_idx = vim.fn.byteidx(get_line(end_line_no), end_cursor_col)
 
     local ltr = start_line_no < end_line_no or (start_line_no == end_line_no and start_cursor_col < end_cursor_col)
 
@@ -349,7 +351,7 @@ function readline.beginning_of_line()
 end
 
 function readline.back_to_indentation()
-  move_cursor_to(curr_line_no(), cursor_col_at_end_of_leading_whitespace(curr_line_no()))
+  move_cursor_to(curr_line_no(), cursor_col_at_end_of_leading_whitespace(curr_line()))
 end
 
 function readline.kill_word()
