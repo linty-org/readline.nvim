@@ -3,7 +3,9 @@
 Notes
 -----
 
-A "cursor column" is a number that represents a cursor position in a line. Thus, for example, there is one more cursor column in a line than there are display characters. Cursor columns are zero-based by convention in this source code.
+A "character" is a single display character, like X or 🙂, independent of the number of bytes used to encode it or the number of screen cells used to display it.
+
+A "cursor column" is a number that represents a cursor position in a line. Thus, for example, there is one more cursor column in a line than there are characters. Cursor columns are zero-based by convention in this source code. Cursor columns live in the character coordinate system, because the number of display cells used to display some characters in Vim is context-dependent.
 
 Line numbers are defined as usual, one-based.
 
@@ -20,6 +22,7 @@ readline.default_word_chars = alphanum
 readline.word_chars = {}
 
 local function is_whitespace(c)
+  -- XXX: There is code below that assumes that there are no multibyte characters in here.
   return c == ' ' or
          c == '	'
 end
@@ -46,6 +49,10 @@ end
 
 local function get_line(line_no)
   return vim.fn.getline(line_no)
+end
+
+local function get_char(s, char_index)
+  return vim.fn.nr2char(vim.fn.strgetchar(s, char_index))
 end
 
 local function curr_line()
@@ -83,25 +90,25 @@ local function last_cursor_col_on_curr_line()
 end
 
 local function cursor_col_at_end_of_leading_whitespace(line)
-  local index = 0
+  local char_index = 0
   local function char()
-    return vim.fn.nr2char(vim.fn.strgetchar(line, index))
+    return get_char(line, char_index)
   end
-  while index < vim.fn.strchars(line) and is_whitespace(char()) do
-    index = index + 1
+  while char_index < vim.fn.strchars(line) and is_whitespace(char()) do
+    char_index = char_index + 1
   end
-  return index
+  return char_index
 end
 
 local function cursor_col_at_start_of_trailing_whitespace(line)
-  local index = vim.fn.strchars(line)
+  local char_index = vim.fn.strchars(line)
   local function prev_char()
-    return vim.fn.nr2char(vim.fn.strgetchar(line, index - 1))
+    return get_char(line, char_index - 1)
   end
-  while index - 1 >= 0 and is_whitespace(prev_char()) do
-    index = index - 1
+  while char_index - 1 >= 0 and is_whitespace(prev_char()) do
+    char_index = char_index - 1
   end
-  return index
+  return char_index
 end
 
 local function get_word_chars()
@@ -114,7 +121,16 @@ local function get_word_chars()
       or readline.default_word_chars
 end
 
-local function new_cursor(s, i, dir, word_chars)
+local STOP_PATTERNS = {
+  c = {'//'},
+  lua = {'--'},
+}
+
+local function get_stop_patterns()
+  return STOP_PATTERNS[vim.o.ft] or {}
+end
+
+local function new_cursor(s, char_index, dir, word_chars)
   local early_exit
   if dir < 0 then
     early_exit = cursor_col_at_end_of_leading_whitespace(s)
@@ -131,28 +147,100 @@ local function new_cursor(s, i, dir, word_chars)
     return 0 <= jp and jp < length
   end
   local consumed_anything = false
-  while can_advance(i) do
-    local c = vim.fn.nr2char(vim.fn.strgetchar(s, next_char_idx(i)))
+  while can_advance(char_index) do
+    local c = get_char(s, next_char_idx(char_index))
     if is_word_char(c, word_chars) then
       consumed_anything = true
     elseif consumed_anything then
       break
     end
-    i = i + dir
+    char_index = char_index + dir
 
-    if i == early_exit then
-      return i
+    if char_index == early_exit then
+      return char_index
     end
   end
-  return i
+  return char_index
 end
 
-local function forward_word_cursor(s, i, word_chars)
-  return new_cursor(s, i, 1, word_chars)
+local function forward_word_cursor(s, char_index, word_chars)
+  return new_cursor(s, char_index, 1, word_chars)
 end
 
-local function backward_word_cursor(s, i, word_chars)
-  return new_cursor(s, i, -1, word_chars)
+local function backward_word_cursor(s, char_index, word_chars)
+  return new_cursor(s, char_index, -1, word_chars)
+end
+
+local function build_trie_node()
+  return {
+    terminal = false,
+    children = {},
+  }
+end
+
+local function build_trie(ss)
+  -- This is a byte trie, not a display character trie.
+  local result = build_trie_node()
+  for _, s in ipairs(ss) do
+    local node = result
+    for byte_index = 1, #s do
+      local c = s:sub(byte_index, byte_index)
+      if not node.children[c] then
+        node.children[c] = build_trie_node()
+      end
+      node = node.children[c]
+    end
+    node.terminal = true
+  end
+  return result
+end
+
+local function backward_line_stops(s, stop_patterns)
+  local result = {}
+  table.insert(result, 0)
+
+  local first_stop = cursor_col_at_end_of_leading_whitespace(s)
+  if first_stop > result[#result] then
+    table.insert(result, first_stop)
+  end
+
+  local node = build_trie(stop_patterns)
+  local byte_index = vim.fn.byteidx(s, first_stop) + 1 -- one-based
+  local hit = false
+
+  -- XXX: Does not work if the empty string is included as a pattern, which is a stupid case anyway.
+  while byte_index <= #s do
+    local next_node = node.children[s:sub(byte_index, byte_index)]
+    if not next_node then
+      break
+    end
+
+    node = next_node
+    byte_index = byte_index + 1
+
+    if node.terminal then
+      hit = true
+      break
+    end
+  end
+
+  --    Now, byte_index points past the hit, if there is one.
+
+  if hit then
+    local num_chars = vim.fn.strchars(s)
+    local char_index = vim.fn.charidx(s, byte_index - 1) -- zero-based
+    while char_index < num_chars and is_whitespace(get_char(s, char_index)) do
+      char_index = char_index + 1
+    end
+
+    if char_index > result[#result] then
+      table.insert(result, char_index)
+    end
+  end
+
+  -- test
+  -- vim.pretty_print(result)
+  return result
 end
 
 function readline._run_tests()
@@ -223,29 +311,37 @@ function readline._run_tests()
   vim.api.nvim_echo(messages, true, {})
 end
 
+local function start_of_next_line()
+  if command_line_mode() or curr_line_no() == num_lines() then
+    return curr_line_no(), curr_cursor_col()
+  else
+    local new_line_no = curr_line_no() + 1
+    local new_cursor_col = cursor_col_at_end_of_leading_whitespace(get_line(new_line_no))
+    return new_line_no, new_cursor_col
+  end
+end
+
 local function forward_word_location(word_chars)
   if curr_cursor_col() == last_cursor_col_on_curr_line() then
-    if command_line_mode() or curr_line_no() == num_lines() then
-      return curr_line_no(), curr_cursor_col()
-    else
-      local new_line_no = curr_line_no() + 1
-      local new_cursor_col = cursor_col_at_end_of_leading_whitespace(get_line(new_line_no))
-      return new_line_no, new_cursor_col
-    end
+    return start_of_next_line()
   else
     return curr_line_no(), forward_word_cursor(curr_line(), curr_cursor_col(), word_chars)
   end
 end
 
+local function end_of_previous_line()
+  if command_line_mode() or curr_line_no() == 1 then
+    return curr_line_no(), curr_cursor_col()
+  else
+    local new_line_no = curr_line_no() - 1
+    local new_cursor_col = cursor_col_at_start_of_trailing_whitespace(get_line(new_line_no))
+    return new_line_no, new_cursor_col
+  end
+end
+
 local function backward_word_location(word_chars)
   if curr_cursor_col() == 0 then
-    if command_line_mode() or curr_line_no() == 1 then
-      return curr_line_no(), curr_cursor_col()
-    else
-      local new_line_no = curr_line_no() - 1
-      local new_cursor_col = cursor_col_at_start_of_trailing_whitespace(get_line(new_line_no))
-      return new_line_no, new_cursor_col
-    end
+    return end_of_previous_line()
   else
     return curr_line_no(), backward_word_cursor(curr_line(), curr_cursor_col(), word_chars)
   end
@@ -348,6 +444,25 @@ end
 
 function readline.beginning_of_line()
   move_cursor_to(curr_line_no(), 0)
+end
+
+local function dwim_beginning_of_comment_or_code_or_line_pos()
+  local stops = backward_line_stops(curr_line(), get_stop_patterns())
+  local cursor_col = curr_cursor_col()
+  for i, stop in ipairs(stops) do
+    if cursor_col <= stop then
+      if i == 1 then
+        return curr_line_no(), stops[#stops]
+      else
+        return curr_line_no(), stops[i - 1]
+      end
+    end
+  end
+  return curr_line_no(), stops[#stops]
+end
+
+function readline.dwim_beginning_of_comment_or_code_or_line()
+  move_cursor_to(dwim_beginning_of_comment_or_code_or_line_pos())
 end
 
 function readline.back_to_indentation()
