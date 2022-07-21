@@ -38,6 +38,47 @@ local function command_line_mode()
   return vim.fn.mode() == 'c'
 end
 
+local BLOCK_CURSOR_MODES = {
+  ['n'] = true,
+  ['no'] = true,
+  ['nov'] = true,
+  ['noV'] = true,
+  ['noCTRL-V'] = true,
+  ['niI'] = true,
+  ['niR'] = true,
+  ['niV'] = true,
+  ['nt'] = true,
+  ['v'] = true,
+  ['vs'] = true,
+  ['V'] = true,
+  ['Vs'] = true,
+  ['CTRL-V'] = true,
+  ['CTRL-Vs'] = true,
+  ['s'] = true,
+  ['S'] = true,
+  ['CTRL-S'] = true,
+  ['i'] = false,
+  ['ic'] = false,
+  ['ix'] = false,
+  ['R'] = false,
+  ['Rc'] = false,
+  ['Rx'] = false,
+  ['Rv'] = false,
+  ['Rvc'] = false,
+  ['Rvx'] = false,
+  ['c'] = false,
+  ['cv'] = false,
+  ['r'] = true,
+  ['rm'] = true,
+  ['r?'] = true,
+  ['!'] = true,
+  ['t'] = true,
+}
+
+local function block_cursor_mode()
+  return BLOCK_CURSOR_MODES[vim.fn.mode()]
+end
+
 local function curr_line_no()
   if command_line_mode() then
     return nil
@@ -85,7 +126,11 @@ local function num_lines()
 end
 
 local function last_cursor_col_on_curr_line()
-  return vim.fn.strchars(curr_line())
+  if block_cursor_mode() then
+    return math.max(0, vim.fn.strchars(curr_line()) - 1)
+  else
+    return vim.fn.strchars(curr_line())
+  end
 end
 
 local function cursor_col_at_end_of_leading_whitespace(line)
