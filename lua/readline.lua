@@ -239,8 +239,6 @@ local function backward_line_stops(s, stop_patterns)
     end
   end
 
-  -- test
-  -- vim.pretty_print(result)
   return result
 end
 
