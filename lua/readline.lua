@@ -429,7 +429,7 @@ local function kill_to(end_line_no, end_cursor_col)
   end
 end
 
-local function dwim_beginning_of_comment_or_code_or_line_pos(roll_to_previous_line)
+local function dwim_beginning_of_line_pos(roll_to_previous_line)
   local stops = backward_line_stops(curr_line(), get_stop_patterns())
   local cursor_col = curr_cursor_col()
   for i, stop in ipairs(stops) do
@@ -464,8 +464,8 @@ function readline.beginning_of_line()
   move_cursor_to(curr_line_no(), 0)
 end
 
-function readline.dwim_beginning_of_comment_or_code_or_line()
-  move_cursor_to(dwim_beginning_of_comment_or_code_or_line_pos())
+function readline.dwim_beginning_of_line()
+  move_cursor_to(dwim_beginning_of_line_pos())
 end
 
 function readline.back_to_indentation()
@@ -492,8 +492,8 @@ function readline.backward_kill_line()
   kill_to(curr_line_no(), 0)
 end
 
-function readline.dwim_backward_kill_comment_or_code_or_line()
-  kill_to(dwim_beginning_of_comment_or_code_or_line_pos(true))
+function readline.dwim_backward_kill_line()
+  kill_to(dwim_beginning_of_line_pos(true))
 end
 
 return readline
