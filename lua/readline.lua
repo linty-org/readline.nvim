@@ -22,7 +22,6 @@ readline.default_word_chars = alphanum
 readline.word_chars = {}
 
 local function is_whitespace(c)
-  -- XXX: There is code below that assumes that there are no multibyte characters in here.
   return c == ' ' or
          c == '	'
 end
