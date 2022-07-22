@@ -93,8 +93,8 @@ local function get_line(line_no)
   return vim.fn.getline(line_no)
 end
 
-local function get_char(s, char_index)
-  return vim.fn.nr2char(vim.fn.strgetchar(s, char_index))
+local function get_char(s, char_idx)
+  return vim.fn.nr2char(vim.fn.strgetchar(s, char_idx))
 end
 
 local function curr_line()
@@ -108,12 +108,12 @@ end
 local function curr_cursor_col()
   -- Returns zero-based.
   if command_line_mode() then
-    local byte_index = vim.fn.getcmdpos() - 1 -- Zero-based.
+    local byte_idx = vim.fn.getcmdpos() - 1 -- Zero-based.
     local line = curr_line()
-    if byte_index == vim.fn.strlen(line) then
+    if byte_idx == vim.fn.strlen(line) then
       return vim.fn.strchars(line)
     end
-    return vim.fn.charidx(line, byte_index)
+    return vim.fn.charidx(line, byte_idx)
   else
     return vim.fn.charcol('.') - 1
   end
@@ -136,25 +136,25 @@ local function last_cursor_col_on_curr_line()
 end
 
 local function cursor_col_at_end_of_leading_whitespace(line)
-  local char_index = 0
+  local char_idx = 0
   local function char()
-    return get_char(line, char_index)
+    return get_char(line, char_idx)
   end
-  while char_index < vim.fn.strchars(line) and is_whitespace(char()) do
-    char_index = char_index + 1
+  while char_idx < vim.fn.strchars(line) and is_whitespace(char()) do
+    char_idx = char_idx + 1
   end
-  return char_index
+  return char_idx
 end
 
 local function cursor_col_at_start_of_trailing_whitespace(line)
-  local char_index = vim.fn.strchars(line)
+  local char_idx = vim.fn.strchars(line)
   local function prev_char()
-    return get_char(line, char_index - 1)
+    return get_char(line, char_idx - 1)
   end
-  while char_index - 1 >= 0 and is_whitespace(prev_char()) do
-    char_index = char_index - 1
+  while char_idx - 1 >= 0 and is_whitespace(prev_char()) do
+    char_idx = char_idx - 1
   end
-  return char_index
+  return char_idx
 end
 
 local function get_word_chars()
@@ -178,7 +178,7 @@ local function get_stop_patterns()
   return STOP_PATTERNS[vim.o.ft] or {}
 end
 
-local function new_cursor(s, char_index, dir, word_chars)
+local function new_cursor(s, char_idx, dir, word_chars)
   local early_exit
   if dir < 0 then
     early_exit = cursor_col_at_end_of_leading_whitespace(s)
@@ -195,28 +195,28 @@ local function new_cursor(s, char_index, dir, word_chars)
     return 0 <= jp and jp < length
   end
   local consumed_anything = false
-  while can_advance(char_index) do
-    local c = get_char(s, next_char_idx(char_index))
+  while can_advance(char_idx) do
+    local c = get_char(s, next_char_idx(char_idx))
     if is_word_char(c, word_chars) then
       consumed_anything = true
     elseif consumed_anything then
       break
     end
-    char_index = char_index + dir
+    char_idx = char_idx + dir
 
-    if char_index == early_exit then
-      return char_index
+    if char_idx == early_exit then
+      return char_idx
     end
   end
-  return char_index
+  return char_idx
 end
 
-local function forward_word_cursor(s, char_index, word_chars)
-  return new_cursor(s, char_index, 1, word_chars)
+local function forward_word_cursor(s, char_idx, word_chars)
+  return new_cursor(s, char_idx, 1, word_chars)
 end
 
-local function backward_word_cursor(s, char_index, word_chars)
-  return new_cursor(s, char_index, -1, word_chars)
+local function backward_word_cursor(s, char_idx, word_chars)
+  return new_cursor(s, char_idx, -1, word_chars)
 end
 
 local function build_trie_node()
@@ -231,8 +231,8 @@ local function build_trie(ss)
   local result = build_trie_node()
   for _, s in ipairs(ss) do
     local node = result
-    for byte_index = 1, #s do
-      local c = s:sub(byte_index, byte_index)
+    for byte_idx = 1, #s do
+      local c = s:sub(byte_idx, byte_idx)
       if not node.children[c] then
         node.children[c] = build_trie_node()
       end
@@ -253,18 +253,18 @@ local function backward_line_stops(s, stop_patterns)
   end
 
   local node = build_trie(stop_patterns)
-  local byte_index = vim.fn.byteidx(s, first_stop) + 1 -- one-based
+  local byte_idx = vim.fn.byteidx(s, first_stop) + 1 -- one-based
   local hit = false
 
   -- XXX: Does not work if the empty string is included as a pattern, which is a stupid case anyway.
-  while byte_index <= #s do
-    local next_node = node.children[s:sub(byte_index, byte_index)]
+  while byte_idx <= #s do
+    local next_node = node.children[s:sub(byte_idx, byte_idx)]
     if not next_node then
       break
     end
 
     node = next_node
-    byte_index = byte_index + 1
+    byte_idx = byte_idx + 1
 
     if node.terminal then
       hit = true
@@ -272,17 +272,17 @@ local function backward_line_stops(s, stop_patterns)
     end
   end
 
-  -- Now, byte_index points past the hit, if there is one.
+  -- Now, byte_idx points past the hit, if there is one.
 
   if hit then
     local num_chars = vim.fn.strchars(s)
-    local char_index = vim.fn.charidx(s, byte_index - 1) -- zero-based
-    while char_index < num_chars and is_whitespace(get_char(s, char_index)) do
-      char_index = char_index + 1
+    local char_idx = vim.fn.charidx(s, byte_idx - 1) -- zero-based
+    while char_idx < num_chars and is_whitespace(get_char(s, char_idx)) do
+      char_idx = char_idx + 1
     end
 
-    if char_index > result[#result] then
-      table.insert(result, char_index)
+    if char_idx > result[#result] then
+      table.insert(result, char_idx)
     end
   end
 
