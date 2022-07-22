@@ -5,6 +5,8 @@ Notes
 
 A "character" is a single display character, like X or 🙂, independent of the number of bytes used to encode it or the number of screen cells used to display it.
 
+Character indices are zero-based, which agrees with cursor-column-indices, and also agrees with the most-common convention in Vim.
+
 A "cursor column" is a number that represents a cursor position in a line. Thus, for example, there is one more cursor column in a line than there are characters. Cursor columns are zero-based by convention in this source code. Cursor columns live in the character coordinate system, because the number of display cells used to display some characters in Vim is context-dependent.
 
 Line numbers are defined as usual, one-based.
